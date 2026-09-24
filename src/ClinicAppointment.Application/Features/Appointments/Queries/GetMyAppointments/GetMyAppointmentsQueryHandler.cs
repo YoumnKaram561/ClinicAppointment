@@ -19,7 +19,7 @@ public class GetMyAppointmentsQueryHandler : IRequestHandler<GetMyAppointmentsQu
 
     public async Task<Result<List<AppointmentResponse>>> Handle(GetMyAppointmentsQuery request, CancellationToken cancellationToken)
     {
-        // "my" is resolved from the token, so one patient can never read another one's list.
+
         if (!_currentUser.TryGetPatientId(out var patientId))
         {
             return Result<List<AppointmentResponse>>.Forbidden("Only a patient account has its own appointments.");

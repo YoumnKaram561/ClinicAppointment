@@ -30,7 +30,6 @@ public class CancelAppointmentCommandHandler : IRequestHandler<CancelAppointment
             return Result<AppointmentResponse>.NotFound($"Appointment {request.Id} was not found.");
         }
 
-        // Cancelling is a patient action, and only on the caller's own appointment.
         if (!_currentUser.TryGetPatientId(out var patientId))
         {
             return Result<AppointmentResponse>.Forbidden("Only a patient account can cancel an appointment.");
@@ -47,7 +46,6 @@ public class CancelAppointmentCommandHandler : IRequestHandler<CancelAppointment
                 AppointmentTransitions.ErrorFor(appointment.Id, appointment.Status, AppointmentStatus.Cancelled));
         }
 
-        // Cancellation is a state change, the record stays in the database.
         appointment.Status = AppointmentStatus.Cancelled;
         await _context.SaveChangesAsync(cancellationToken);
 

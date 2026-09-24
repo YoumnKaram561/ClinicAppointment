@@ -12,9 +12,7 @@ public record AppointmentResponse(
     AppointmentStatus Status,
     DateTime CreatedAt)
 {
-    /// <summary>
-    /// Requires the Patient and Doctor navigations to be loaded by the caller.
-    /// </summary>
+
     public static AppointmentResponse FromEntity(Appointment appointment) => new(
         appointment.Id,
         appointment.PatientId,

@@ -2,14 +2,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace ClinicAppointment.Infrastructure.Authentication;
 
-/// <summary>
-/// Read from the "Jwt" section of appsettings.json. No key material lives in C# code.
-/// </summary>
 public class JwtSettings
 {
     public const string SectionName = "Jwt";
 
-    /// <summary>HS256 needs a 256 bit key, so the secret must be at least 32 characters.</summary>
     public const int MinimumSecretLength = 32;
 
     public string Issuer { get; init; } = string.Empty;
@@ -20,10 +16,6 @@ public class JwtSettings
 
     public int ExpirationInMinutes { get; init; }
 
-    /// <summary>
-    /// Reads the values one by one, so the same small class can be used by the API
-    /// (token validation) and by Infrastructure (token creation).
-    /// </summary>
     public static JwtSettings FromConfiguration(IConfiguration configuration)
     {
         var section = configuration.GetSection(SectionName);
@@ -37,10 +29,6 @@ public class JwtSettings
         };
     }
 
-    /// <summary>
-    /// Stops the API with a clear message instead of failing later with a confusing
-    /// signing or validation error.
-    /// </summary>
     public void Validate()
     {
         if (string.IsNullOrWhiteSpace(Issuer) || string.IsNullOrWhiteSpace(Audience))

@@ -3,10 +3,6 @@ using ClinicAppointment.Domain.Entities;
 
 namespace ClinicAppointment.Application.DTOs;
 
-/// <summary>
-/// Body of POST /api/auth/register. The password is only used to build the hash and
-/// is never stored or sent back.
-/// </summary>
 public class RegisterRequest
 {
     [Required(ErrorMessage = "Name is required.")]
@@ -22,7 +18,6 @@ public class RegisterRequest
     [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
     public string Password { get; set; } = string.Empty;
 
-    /// <summary>"Patient" or "Doctor". A Patient account also gets its Patient record.</summary>
     [Required(ErrorMessage = "Role is required.")]
     [EnumDataType(typeof(UserRole), ErrorMessage = "Role must be Patient or Doctor.")]
     public UserRole? Role { get; set; }

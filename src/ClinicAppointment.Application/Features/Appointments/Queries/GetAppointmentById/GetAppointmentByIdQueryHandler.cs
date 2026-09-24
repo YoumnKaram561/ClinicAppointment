@@ -30,8 +30,6 @@ public class GetAppointmentByIdQueryHandler : IRequestHandler<GetAppointmentById
             return Result<AppointmentResponse>.NotFound($"Appointment {request.Id} was not found.");
         }
 
-        // A patient account may only open its own appointment. A doctor account has no patient
-        // record and needs to see the appointment it is being asked to confirm or reject.
         if (_currentUser.TryGetPatientId(out var patientId) && appointment.PatientId != patientId)
         {
             return Result<AppointmentResponse>.Forbidden("This appointment belongs to another patient.");

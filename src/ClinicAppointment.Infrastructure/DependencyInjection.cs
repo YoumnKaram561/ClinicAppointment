@@ -18,12 +18,9 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
-        // The handlers in the Application layer depend on this abstraction, not on EF Core itself.
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
 
-        // Authentication settings live in configuration only; bad values stop start-up with a
-        // clear message instead of producing invalid tokens later.
         var jwtSettings = JwtSettings.FromConfiguration(configuration);
         jwtSettings.Validate();
 

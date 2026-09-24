@@ -29,8 +29,6 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<AuthResp
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-        // One answer for "no such account" and "wrong password", so the endpoint cannot be
-        // used to find out which email addresses are registered.
         if (user is null || !_passwordHasher.Verify(user.PasswordHash, request.Password))
         {
             return Result<AuthResponse>.Unauthorized("Email or password is incorrect.");

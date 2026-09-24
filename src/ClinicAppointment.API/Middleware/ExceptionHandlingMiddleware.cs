@@ -3,13 +3,9 @@ using ClinicAppointment.API.Common;
 
 namespace ClinicAppointment.API.Middleware;
 
-/// <summary>
-/// Last resort for errors nobody expected (database unreachable, bugs, ...).
-/// Business rule violations never reach this point: the handlers return them as data.
-/// </summary>
 public class ExceptionHandlingMiddleware
 {
-    // Web defaults = camelCase property names, so the body stays { "error": "..." }.
+
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly RequestDelegate _next;

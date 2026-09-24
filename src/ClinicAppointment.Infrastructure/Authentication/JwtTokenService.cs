@@ -8,10 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ClinicAppointment.Infrastructure.Authentication;
 
-/// <summary>
-/// Builds a signed JWT (HS256) for an account. The claims carry the ids the API needs
-/// later, so no request has to send them again.
-/// </summary>
 public class JwtTokenService : ITokenGenerator
 {
     private readonly JwtSettings _settings;
@@ -34,7 +30,6 @@ public class JwtTokenService : ITokenGenerator
             new(AuthTokenClaims.Role, user.Role.ToString()),
         };
 
-        // Only patient accounts get this claim; a doctor token cannot act as a patient.
         if (user.PatientId is not null)
         {
             claims.Add(new Claim(AuthTokenClaims.PatientId, user.PatientId.Value.ToString()));

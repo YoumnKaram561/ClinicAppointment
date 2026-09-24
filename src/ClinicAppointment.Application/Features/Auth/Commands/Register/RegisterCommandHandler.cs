@@ -28,7 +28,6 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Us
             return Result<UserResponse>.BadRequest("Role must be Patient or Doctor.");
         }
 
-        // Email addresses are compared as stored; the database collation is case insensitive.
         var emailTaken = await _context.Users.AnyAsync(u => u.Email == email, cancellationToken);
 
         if (emailTaken)
@@ -40,15 +39,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<Us
         {
             Name = name,
             Email = email,
-            // Only the hash is stored; the plain password never reaches the database.
+
             PasswordHash = _passwordHasher.Hash(request.Password),
             Role = request.Role
         };
 
         if (user.Role == UserRole.Patient)
         {
-            // Appointments belong to a Patient record, so a patient account is given one.
-            // The phone number is not part of registration and can be filled in later.
+
             var patient = new Patient { Name = name, Email = email, Phone = string.Empty };
 
             _context.Patients.Add(patient);

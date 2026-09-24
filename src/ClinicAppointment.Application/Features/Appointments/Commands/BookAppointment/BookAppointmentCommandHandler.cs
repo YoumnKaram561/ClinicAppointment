@@ -20,7 +20,7 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
 
     public async Task<Result<AppointmentResponse>> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
     {
-        // Who is booking comes from the token, never from the request body.
+
         if (!_currentUser.TryGetPatientId(out var patientId))
         {
             return Result<AppointmentResponse>.Forbidden("Only a patient account can book an appointment.");
@@ -57,8 +57,6 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
             return Result<AppointmentResponse>.BadRequest("AppointmentDate cannot be in the past.");
         }
 
-        // A cancelled or rejected booking frees the slot, because cancelling never deletes the record.
-        // 409 is reserved for this duplicate-slot rule.
         var slotTaken = await _context.Appointments.AnyAsync(a =>
             a.PatientId == patientId &&
             a.DoctorId == request.DoctorId &&
@@ -84,7 +82,6 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
         _context.Appointments.Add(appointment);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // The navigations are filled from the entities already loaded above, so no extra query is needed.
         appointment.Patient = patient;
         appointment.Doctor = doctor;
 

@@ -18,8 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-// A body that fails model validation is reported the same way as a failed business rule,
-// so every 400 from this API has one shape: { "error": "message" }.
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -28,7 +26,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
             .Where(entry => entry.Value is { Errors.Count: > 0 })
             .SelectMany(entry => entry.Value!.Errors.Select(error =>
             {
-                // Keys arrive as "request.DoctorId"; the JSON body uses camelCase names.
+
                 var field = entry.Key[(entry.Key.LastIndexOf('.') + 1)..];
                 return field.Length == 0
                     ? error.ErrorMessage
@@ -39,13 +37,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// The "Jwt" section of appsettings.json holds the secret, issuer, audience and lifetime.
-// Nothing here is hardcoded, and Infrastructure reads the same section to sign its tokens.
 var jwtSettings = JwtSettings.FromConfiguration(builder.Configuration);
 jwtSettings.Validate();
 
-// A rejected token or a missing role is reported by middleware, not by a controller, so it has to
-// be written out here to keep the one error shape the rest of the API uses: { "error": "message" }.
 var errorJsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
 Task WriteAuthError(HttpResponse response, int statusCode, string message, string? wwwAuthenticate = null)
@@ -65,7 +59,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        // Keep the short claim names written by JwtTokenService ("role", "patient_id", ...).
+
         options.MapInboundClaims = false;
 
         options.TokenValidationParameters = new TokenValidationParameters
@@ -77,7 +71,7 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
             ValidateLifetime = true,
-            // A token stops working at its own expiry time instead of living a few minutes longer.
+
             ClockSkew = TimeSpan.Zero,
             NameClaimType = AuthTokenClaims.Name,
             RoleClaimType = AuthTokenClaims.Role,
@@ -85,7 +79,7 @@ builder.Services
 
         options.Events = new JwtBearerEvents
         {
-            // No token, a broken token or an expired one.
+
             OnChallenge = context =>
             {
                 context.HandleResponse();
@@ -97,7 +91,6 @@ builder.Services
                     "Bearer");
             },
 
-            // A valid token whose role is not allowed for the endpoint.
             OnForbidden = context => WriteAuthError(
                 context.Response,
                 StatusCodes.Status403Forbidden,
@@ -107,7 +100,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// Who is calling is read from the validated token, so handlers never ask the request for an id.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, JwtCurrentUser>();
 
@@ -117,7 +109,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Controller comments document the endpoints, Application comments document the DTO schemas.
+
     foreach (var xmlFile in new[] { "ClinicAppointment.API.xml", "ClinicAppointment.Application.xml" })
     {
         options.IncludeXmlComments(
@@ -125,8 +117,6 @@ builder.Services.AddSwaggerGen(options =>
             includeControllerXmlComments: true);
     }
 
-    // Adds the Authorize button, so protected endpoints can be tested from Swagger UI.
-    // Type Http + scheme "bearer" means you paste only the token; "Bearer " is added for you.
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -161,7 +151,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Authentication first: it fills HttpContext.User, which authorization then checks.
 app.UseAuthentication();
 
 app.UseAuthorization();

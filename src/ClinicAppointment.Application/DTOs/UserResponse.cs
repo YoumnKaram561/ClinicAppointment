@@ -2,9 +2,6 @@ using ClinicAppointment.Domain.Entities;
 
 namespace ClinicAppointment.Application.DTOs;
 
-/// <summary>
-/// Account details the API is allowed to expose. PasswordHash is deliberately absent.
-/// </summary>
 public record UserResponse(
     int Id,
     string Name,
