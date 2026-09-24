@@ -1,0 +1,27 @@
+# Build output
+bin/
+obj/
+[Ll]og/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio / VS Code / Rider
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+.idea/
+
+# Local logs and scratch files
+*.log
+TestResults/
+publish/
+
+# Local-only secrets and machine specific settings
+appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.key
